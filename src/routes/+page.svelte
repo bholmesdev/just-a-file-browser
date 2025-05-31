@@ -3,11 +3,27 @@
 
   let name = $state('');
   let greetMsg = $state('');
+  let desktopFiles = $state<string[]>([]);
+  let loading = $state(false);
+  let error = $state('');
 
   async function greet(event: Event) {
     event.preventDefault();
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     greetMsg = await invoke('greet', { name });
+  }
+
+  async function loadDesktopFiles() {
+    loading = true;
+    error = '';
+    try {
+      desktopFiles = await invoke('list_desktop_files');
+    } catch (err) {
+      error = `Error: ${err}`;
+      desktopFiles = [];
+    } finally {
+      loading = false;
+    }
   }
 </script>
 
@@ -32,6 +48,25 @@
     <button type="submit">Greet</button>
   </form>
   <p>{greetMsg}</p>
+
+  <div class="file-browser">
+    <h2>Desktop File Browser</h2>
+    <button onclick={loadDesktopFiles} disabled={loading}>
+      {loading ? 'Loading...' : 'Load Desktop Files'}
+    </button>
+    
+    {#if error}
+      <p class="error">{error}</p>
+    {/if}
+    
+    {#if desktopFiles.length > 0}
+      <ul class="file-list">
+        {#each desktopFiles as file}
+          <li>{file}</li>
+        {/each}
+      </ul>
+    {/if}
+  </div>
 </main>
 
 <style>
@@ -131,6 +166,44 @@
 
   #greet-input {
     margin-right: 5px;
+  }
+
+  .file-browser {
+    margin-top: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .file-list {
+    text-align: left;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #ffffff;
+  }
+
+  .file-list li {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #eee;
+    font-family: monospace;
+  }
+
+  .file-list li:last-child {
+    border-bottom: none;
+  }
+
+  .file-list li:hover {
+    background-color: #f5f5f5;
+  }
+
+  .error {
+    color: #ff3e00;
+    font-weight: 500;
   }
 
   @media (prefers-color-scheme: dark) {
