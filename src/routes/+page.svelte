@@ -3,25 +3,26 @@
   import Icon from '@iconify/svelte';
   import searchLine from '@iconify-icons/mingcute/search-line';
   import FileList from '../lib/components/FileList.svelte';
+  import { FileNavigationState } from '../lib/components/FileNavigationState.svelte';
 
   let searchQuery = $state('');
   let files = $derived(await loadDesktopFiles(searchQuery));
   let searchInput: HTMLInputElement;
-  let fileList: FileList;
   
-  // Auto-focus search input when component mounts
+  const navigationState = new FileNavigationState();
+  
+  // Update files when they change
+  $effect(() => {
+    navigationState.setFiles(files);
+  });
+  
+  // Set search input reference and auto-focus
   $effect(() => {
     if (searchInput) {
+      navigationState.setSearchInputRef(searchInput);
       searchInput.focus();
     }
   });
-  
-  function handleSearchKeydown(event: KeyboardEvent) {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      fileList?.focus();
-    }
-  }
 </script>
 
 <main class="container">
@@ -33,12 +34,12 @@
         bind:value={searchQuery} 
         bind:this={searchInput}
         placeholder="Search" 
-        onkeydown={handleSearchKeydown}
+        onkeydown={navigationState.handleSearchKeydown}
       />
       <Icon icon={searchLine} class="search-icon" />
     </div>
 
-    <FileList {files} bind:this={fileList} />
+    <FileList {navigationState} />
   </div>
 </main>
 

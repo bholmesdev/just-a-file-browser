@@ -1,33 +1,19 @@
 <script lang="ts">
-  import type { FileInfo } from '../invoke';
-  import { FileNavigationState } from './FileNavigationState.svelte';
+  import type { FileNavigationState } from './FileNavigationState.svelte';
   import FileRow from './FileRow.svelte';
 
   interface Props {
-    files: FileInfo[];
+    navigationState: FileNavigationState;
   }
 
-  let { files }: Props = $props();
-
-  const navigationState = new FileNavigationState();
+  let { navigationState }: Props = $props();
+  
   let containerElement: HTMLDivElement;
 
-  // Update files when they change
+  // Set the file list reference when component mounts
   $effect(() => {
-    navigationState.setFiles(files);
+    navigationState.setFileListRef(containerElement);
   });
-
-  // Handle keyboard events
-  function handleKeydown(event: KeyboardEvent) {
-    navigationState.handleKeydown(event);
-  }
-
-  // Expose focus method for external use
-  export function focus() {
-    if (containerElement) {
-      containerElement.focus();
-    }
-  }
 </script>
 
 <div
@@ -35,7 +21,7 @@
   class="file-list"
   bind:this={containerElement}
   tabindex="0"
-  onkeydown={handleKeydown}
+  onkeydown={navigationState.handleFileListKeydown}
 >
   {#each navigationState.files as file, index}
     <FileRow {file} isSelected={index === navigationState.selectedIndex} />

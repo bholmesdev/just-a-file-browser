@@ -3,6 +3,8 @@ import type { FileInfo } from '../invoke';
 export class FileNavigationState {
   private _files = $state<FileInfo[]>([]);
   private _selectedIndex = $state<number>(0);
+  private _searchInputRef = $state<HTMLInputElement | null>(null);
+  private _fileListRef = $state<HTMLDivElement | null>(null);
 
   constructor() {}
 
@@ -18,14 +20,36 @@ export class FileNavigationState {
     return this._files[this._selectedIndex] || null;
   }
 
+  setSearchInputRef(ref: HTMLInputElement | null) {
+    this._searchInputRef = ref;
+  }
+
+  setFileListRef(ref: HTMLDivElement | null) {
+    this._fileListRef = ref;
+  }
+
   setFiles(files: FileInfo[]) {
     this._files = files;
     this._selectedIndex = files.length > 0 ? 0 : -1;
   }
 
+  focusSearch() {
+    this._searchInputRef?.focus();
+  }
+
+  focusFileList() {
+    this._fileListRef?.focus();
+  }
+
   navigateUp() {
     if (this._files.length === 0) return;
-    this._selectedIndex = Math.max(0, this._selectedIndex - 1);
+    
+    if (this._selectedIndex === 0) {
+      // If on first item, refocus search box
+      this.focusSearch();
+    } else {
+      this._selectedIndex = Math.max(0, this._selectedIndex - 1);
+    }
   }
 
   navigateDown() {
@@ -40,7 +64,35 @@ export class FileNavigationState {
     }
   }
 
-  handleKeydown(event: KeyboardEvent) {
+  openFirstItem() {
+    if (this._files.length > 0) {
+      console.log('Opening file:', this._files[0].name);
+    }
+  }
+
+  focusSecondItem() {
+    if (this._files.length > 1) {
+      this._selectedIndex = 1;
+    } else if (this._files.length === 1) {
+      this._selectedIndex = 0;
+    }
+    this.focusFileList();
+  }
+
+  handleSearchKeydown = (event: KeyboardEvent) => {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.focusSecondItem();
+        break;
+      case 'Enter':
+        event.preventDefault();
+        this.openFirstItem();
+        break;
+    }
+  }
+
+  handleFileListKeydown = (event: KeyboardEvent) => {
     switch (event.key) {
       case 'ArrowUp':
         event.preventDefault();
