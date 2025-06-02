@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { loadDesktopFiles, type FileInfo } from '../lib/invoke';
+  import { loadDesktopFiles } from '../lib/invoke';
   import Icon from '@iconify/svelte';
   import searchLine from '@iconify-icons/mingcute/search-line';
   import FileList from '../lib/components/FileList.svelte';
@@ -8,32 +8,52 @@
   let searchQuery = $state('');
   let files = $derived(await loadDesktopFiles(searchQuery));
   let searchInput: HTMLInputElement;
-  
+
   const navigationState = new FileNavigationState();
-  
+
   // Update files when they change
   $effect(() => {
     navigationState.setFiles(files);
   });
-  
-  // Set search input reference and auto-focus
+
   $effect(() => {
-    if (searchInput) {
-      navigationState.setSearchInputRef(searchInput);
-      searchInput.focus();
+    // Refocus input whenever the query updates
+    if (searchQuery) {
+      searchInput?.focus();
     }
   });
+
+  function handleSearchWhenInputIsBlurred(event: KeyboardEvent) {
+    if (document.activeElement === searchInput || !isKeyboardEventWithoutModifiers(event)) {
+      return;
+    }
+    event.preventDefault();
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      searchQuery = searchQuery.slice(0, -1);
+    } else {
+      searchQuery += event.key;
+    }
+  }
+
+  function isKeyboardEventWithoutModifiers(event: KeyboardEvent): boolean {
+    const isBackspace = event.key === 'Backspace' || event.key === 'Delete';
+    return (
+      isBackspace || (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey)
+    );
+  }
 </script>
+
+<svelte:window on:keydown={handleSearchWhenInputIsBlurred} />
 
 <main class="container">
   <div class="file-browser">
     <div class="search-container">
-      <input 
-        class="search" 
-        type="text" 
-        bind:value={searchQuery} 
+      <input
+        class="search"
+        type="text"
+        bind:value={searchQuery}
         bind:this={searchInput}
-        placeholder="Search" 
+        placeholder="Search"
         onkeydown={navigationState.handleSearchKeydown}
       />
       <Icon icon={searchLine} class="search-icon" />
@@ -48,7 +68,7 @@
     position: relative;
     width: 100%;
   }
-  
+
   .search {
     width: 100%;
     padding: 0.5rem;
@@ -58,7 +78,7 @@
     padding-inline: 1rem;
     padding-right: 3rem; /* Make space for the icon */
   }
-  
+
   :global(.search-icon) {
     position: absolute;
     right: 1rem;
