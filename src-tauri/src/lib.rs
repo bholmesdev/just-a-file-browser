@@ -15,7 +15,7 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn list_desktop_files() -> Result<Vec<FileInfo>, String> {
+fn list_desktop_files(search_query: String) -> Result<Vec<FileInfo>, String> {
     // Get the user's home directory
     let home_dir = dirs::home_dir().ok_or("Could not find home directory")?;
     
@@ -28,9 +28,16 @@ fn list_desktop_files() -> Result<Vec<FileInfo>, String> {
     
     // Collect file info with metadata
     let mut files = Vec::new();
+    let search_lower = search_query.to_lowercase();
+    
     for entry in entries {
         let entry = entry.map_err(|e| format!("Error reading directory entry: {}", e))?;
         if let Some(name) = entry.file_name().to_str() {
+            // Filter by search query if provided
+            if !search_query.is_empty() && !name.to_lowercase().contains(&search_lower) {
+                continue;
+            }
+            
             let metadata = entry.metadata()
                 .map_err(|e| format!("Failed to read metadata for {}: {}", name, e))?;
             
@@ -51,6 +58,16 @@ fn list_desktop_files() -> Result<Vec<FileInfo>, String> {
             });
         }
     }
+    
+    // Sort by most recently modified (descending order)
+    files.sort_by(|a, b| {
+        match (a.modified, b.modified) {
+            (Some(a_mod), Some(b_mod)) => b_mod.cmp(&a_mod), // Most recent first
+            (Some(_), None) => std::cmp::Ordering::Less,     // Files with mod time come first
+            (None, Some(_)) => std::cmp::Ordering::Greater,  // Files without mod time come last
+            (None, None) => a.name.cmp(&b.name),             // Fallback to name sorting
+        }
+    });
     
     Ok(files)
 }
