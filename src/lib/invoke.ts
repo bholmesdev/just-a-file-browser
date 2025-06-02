@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 
 export interface FileInfo {
   name: string;
+  file_type: string; // "image", "video", or "pdf"
   created?: number;  // Unix timestamp in seconds
   modified?: number; // Unix timestamp in seconds
 }

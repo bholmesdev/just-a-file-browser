@@ -5,8 +5,34 @@ use std::fs;
 #[derive(Serialize, Deserialize)]
 struct FileInfo {
     name: String,
+    file_type: String,     // "image", "video", or "pdf"
     created: Option<u64>,  // Unix timestamp in seconds
     modified: Option<u64>, // Unix timestamp in seconds
+}
+
+fn get_file_type(file_name: &str) -> Option<String> {
+    let extension = std::path::Path::new(file_name)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_lowercase());
+    
+    match extension.as_deref() {
+        // Image formats
+        Some("jpg") | Some("jpeg") | Some("png") | Some("gif") | Some("bmp") | 
+        Some("tiff") | Some("tif") | Some("webp") | Some("svg") | Some("ico") | 
+        Some("heic") | Some("heif") | Some("raw") | Some("cr2") | Some("nef") => {
+            Some("image".to_string())
+        },
+        // Video formats
+        Some("mp4") | Some("avi") | Some("mkv") | Some("mov") | Some("wmv") | 
+        Some("flv") | Some("webm") | Some("m4v") | Some("3gp") | Some("mpg") | 
+        Some("mpeg") | Some("ogv") | Some("ts") | Some("mts") | Some("m2ts") => {
+            Some("video".to_string())
+        },
+        // PDF
+        Some("pdf") => Some("pdf".to_string()),
+        _ => None,
+    }
 }
 
 #[tauri::command]
@@ -49,29 +75,33 @@ fn list_desktop_files(search_query: String) -> Result<Vec<FileInfo>, String> {
             // Only process files, not directories
             if entry.path().is_file() {
                 if let Some(name) = entry.file_name().to_str() {
-                    // Filter by search query if provided
-                    if !search_query.is_empty() && !name.to_lowercase().contains(&search_lower) {
-                        continue;
-                    }
-                    
-                    if let Ok(metadata) = entry.metadata() {
-                        let created = metadata
-                            .created()
-                            .ok()
-                            .and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok())
-                            .map(|duration| duration.as_secs());
+                    // Check if file is a supported media type or PDF
+                    if let Some(file_type) = get_file_type(name) {
+                        // Filter by search query if provided
+                        if !search_query.is_empty() && !name.to_lowercase().contains(&search_lower) {
+                            continue;
+                        }
                         
-                        let modified = metadata
-                            .modified()
-                            .ok()
-                            .and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok())
-                            .map(|duration| duration.as_secs());
-                        
-                        files.push(FileInfo {
-                            name: name.to_string(),
-                            created,
-                            modified,
-                        });
+                        if let Ok(metadata) = entry.metadata() {
+                            let created = metadata
+                                .created()
+                                .ok()
+                                .and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok())
+                                .map(|duration| duration.as_secs());
+                            
+                            let modified = metadata
+                                .modified()
+                                .ok()
+                                .and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok())
+                                .map(|duration| duration.as_secs());
+                            
+                            files.push(FileInfo {
+                                name: name.to_string(),
+                                file_type,
+                                created,
+                                modified,
+                            });
+                        }
                     }
                 }
             }
