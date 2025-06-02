@@ -1,8 +1,13 @@
 <script lang="ts">
-  import { loadDesktopFiles } from '../lib/invoke';
+  import { loadDesktopFiles, type FileInfo } from '../lib/invoke';
 
   let searchQuery = $state('');
   let files = $derived(await loadDesktopFiles(searchQuery));
+  
+  function formatDate(timestamp?: number): string {
+    if (!timestamp) return 'Unknown';
+    return new Date(timestamp * 1000).toLocaleString();
+  }
 </script>
 
 <main class="container">
@@ -11,7 +16,13 @@
 
     <ul class="file-list">
       {#each files as file}
-        <li>{file}</li>
+        <li class="file-item">
+          <div class="file-name">{file.name}</div>
+          <div class="file-dates">
+            <span class="file-date">Created: {formatDate(file.created)}</span>
+            <span class="file-date">Modified: {formatDate(file.modified)}</span>
+          </div>
+        </li>
       {/each}
     </ul>
   </div>
