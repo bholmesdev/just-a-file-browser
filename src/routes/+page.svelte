@@ -1,5 +1,7 @@
 <script lang="ts">
   import { loadDesktopFiles, type FileInfo } from '../lib/invoke';
+  import Icon from '@iconify/svelte';
+  import searchLine from '@iconify-icons/mingcute/search-line';
 
   let searchQuery = $state('');
   let files = $derived(await loadDesktopFiles(searchQuery));
@@ -12,7 +14,10 @@
 
 <main class="container">
   <div class="file-browser">
-    <input class="search" type="text" bind:value={searchQuery} placeholder="Search" />
+    <div class="search-container">
+      <input class="search" type="text" bind:value={searchQuery} placeholder="Search" />
+      <Icon icon={searchLine} class="search-icon" />
+    </div>
 
     <ul class="file-list">
       {#each files as file}
@@ -29,6 +34,11 @@
 </main>
 
 <style>
+  .search-container {
+    position: relative;
+    width: 100%;
+  }
+  
   .search {
     width: 100%;
     padding: 0.5rem;
@@ -36,5 +46,17 @@
     font-size: 1.8rem;
     border: none;
     padding-inline: 1rem;
+    padding-right: 3rem; /* Make space for the icon */
+  }
+  
+  :global(.search-icon) {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    width: 1.5rem;
+    height: 1.5rem;
+    pointer-events: none;
   }
 </style>
