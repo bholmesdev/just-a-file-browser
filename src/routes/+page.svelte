@@ -2,34 +2,43 @@
   import { loadDesktopFiles, type FileInfo } from '../lib/invoke';
   import Icon from '@iconify/svelte';
   import searchLine from '@iconify-icons/mingcute/search-line';
+  import FileList from '../lib/components/FileList.svelte';
 
   let searchQuery = $state('');
   let files = $derived(await loadDesktopFiles(searchQuery));
+  let searchInput: HTMLInputElement;
+  let fileList: FileList;
   
-  function formatDate(timestamp?: number): string {
-    if (!timestamp) return 'Unknown';
-    return new Date(timestamp * 1000).toLocaleString();
+  // Auto-focus search input when component mounts
+  $effect(() => {
+    if (searchInput) {
+      searchInput.focus();
+    }
+  });
+  
+  function handleSearchKeydown(event: KeyboardEvent) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      fileList?.focus();
+    }
   }
 </script>
 
 <main class="container">
   <div class="file-browser">
     <div class="search-container">
-      <input class="search" type="text" bind:value={searchQuery} placeholder="Search" />
+      <input 
+        class="search" 
+        type="text" 
+        bind:value={searchQuery} 
+        bind:this={searchInput}
+        placeholder="Search" 
+        onkeydown={handleSearchKeydown}
+      />
       <Icon icon={searchLine} class="search-icon" />
     </div>
 
-    <ul class="file-list">
-      {#each files as file}
-        <li class="file-item">
-          <div class="file-name">{file.name}</div>
-          <div class="file-dates">
-            <span class="file-date">Created: {formatDate(file.created)}</span>
-            <span class="file-date">Modified: {formatDate(file.modified)}</span>
-          </div>
-        </li>
-      {/each}
-    </ul>
+    <FileList {files} bind:this={fileList} />
   </div>
 </main>
 
