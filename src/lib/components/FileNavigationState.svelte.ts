@@ -1,15 +1,19 @@
-import type { FileInfo } from '../invoke';
+import { loadDesktopFiles, type FileInfo } from '../invoke';
 
 export class FileNavigationState {
-  private _files = $state<FileInfo[]>([]);
+  files = $state<FileInfo[]>([]);
   private _selectedIndex = $state<number>(0);
   private _searchInputRef = $state<HTMLInputElement | null>(null);
   private _fileListRef = $state<HTMLDivElement | null>(null);
 
-  constructor() {}
+  constructor() {
+    loadDesktopFiles('').then((files) => {
+      this.files = files;
+    });
+  }
 
-  get files() {
-    return this._files;
+  async search(query: string) {
+    this.files = await loadDesktopFiles(query);
   }
 
   get selectedIndex() {
@@ -17,7 +21,7 @@ export class FileNavigationState {
   }
 
   get selectedFile() {
-    return this._files[this._selectedIndex] || null;
+    return this.files[this._selectedIndex] || null;
   }
 
   setSearchInputRef(ref: HTMLInputElement | null) {
@@ -29,7 +33,7 @@ export class FileNavigationState {
   }
 
   setFiles(files: FileInfo[]) {
-    this._files = files;
+    this.files = files;
     this._selectedIndex = files.length > 0 ? 0 : -1;
   }
 
@@ -42,8 +46,8 @@ export class FileNavigationState {
   }
 
   navigateUp() {
-    if (this._files.length === 0) return;
-    
+    if (this.files.length === 0) return;
+
     if (this._selectedIndex === 0) {
       // If on first item, refocus search box
       this.focusSearch();
@@ -53,8 +57,8 @@ export class FileNavigationState {
   }
 
   navigateDown() {
-    if (this._files.length === 0) return;
-    this._selectedIndex = Math.min(this._files.length - 1, this._selectedIndex + 1);
+    if (this.files.length === 0) return;
+    this._selectedIndex = Math.min(this.files.length - 1, this._selectedIndex + 1);
   }
 
   openSelected() {
@@ -65,15 +69,15 @@ export class FileNavigationState {
   }
 
   openFirstItem() {
-    if (this._files.length > 0) {
-      console.log('Opening file:', this._files[0].name);
+    if (this.files.length > 0) {
+      console.log('Opening file:', this.files[0].name);
     }
   }
 
   focusSecondItem() {
-    if (this._files.length > 1) {
+    if (this.files.length > 1) {
       this._selectedIndex = 1;
-    } else if (this._files.length === 1) {
+    } else if (this.files.length === 1) {
       this._selectedIndex = 0;
     }
     this.focusFileList();
@@ -90,7 +94,7 @@ export class FileNavigationState {
         this.openFirstItem();
         break;
     }
-  }
+  };
 
   handleFileListKeydown = (event: KeyboardEvent) => {
     switch (event.key) {
@@ -107,5 +111,5 @@ export class FileNavigationState {
         this.openSelected();
         break;
     }
-  }
+  };
 }

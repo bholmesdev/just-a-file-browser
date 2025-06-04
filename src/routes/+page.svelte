@@ -1,24 +1,22 @@
 <script lang="ts">
-  import { loadDesktopFiles } from '../lib/invoke';
   import Icon from '@iconify/svelte';
   import searchLine from '@iconify-icons/mingcute/search-line';
   import FileList from '../lib/components/FileList.svelte';
   import { FileNavigationState } from '../lib/components/FileNavigationState.svelte';
 
-  let searchQuery = $state('');
-  let files = $derived(await loadDesktopFiles(searchQuery));
   let searchInput: HTMLInputElement;
+  let searchQuery = $state('');
 
   const navigationState = new FileNavigationState();
 
-  // Update files when they change
+  // Set search input reference for navigation
   $effect(() => {
-    navigationState.setFiles(files);
+    navigationState.setSearchInputRef(searchInput);
   });
 
   $effect(() => {
-    // Refocus input whenever the query updates
     if (searchQuery) {
+      navigationState.search(searchQuery);
       searchInput?.focus();
     }
   });

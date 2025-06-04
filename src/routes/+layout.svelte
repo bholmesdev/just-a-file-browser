@@ -7,10 +7,6 @@
 <svelte:boundary>
   {@render children()}
 
-  {#snippet pending()}
-    <p>Loading...</p>
-  {/snippet}
-
   {#snippet failed(error, reset)}
     <p>Unexpectedly goofed up!</p>
     <details>
