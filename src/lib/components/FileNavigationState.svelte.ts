@@ -58,29 +58,16 @@ export class FileNavigationState {
     const containerRect = container.getBoundingClientRect();
     const selectedRect = selectedElement.getBoundingClientRect();
     
-    // Calculate the middle half of the container
-    const containerMiddleStart = containerRect.top + containerRect.height * 0.25;
-    const containerMiddleEnd = containerRect.top + containerRect.height * 0.75;
+    // Calculate the center of the selected element relative to the container
+    const selectedElementCenter = selectedRect.top + selectedRect.height / 2;
     
-    // Check if the selected element is NOT in the middle half of the container
-    const isOutsideMiddleHalf = 
-      selectedRect.top < containerMiddleStart || 
-      selectedRect.bottom > containerMiddleEnd;
+    // Calculate how much we need to scroll to center the element
+    const scrollOffset = selectedElementCenter - containerRect.top - containerRect.height / 2;
     
-    // If element is outside the middle half, scroll to center it
-    if (isOutsideMiddleHalf) {
-      const containerCenter = containerRect.height / 2;
-      const elementCenter = selectedRect.height / 2;
-      
-      // Calculate how much to scroll to center the element
-      const elementRelativeTop = selectedRect.top - containerRect.top;
-      const targetScrollTop = container.scrollTop + elementRelativeTop - containerCenter + elementCenter;
-      
-      container.scrollTo({
-        top: Math.max(0, targetScrollTop),
-        behavior: 'smooth'
-      });
-    }
+    container.scrollTo({
+      top: container.scrollTop + scrollOffset,
+      behavior: 'smooth'
+    });
   }
 
   navigateUp() {
