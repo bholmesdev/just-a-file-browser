@@ -38,7 +38,8 @@
     border: 1px solid #ddd;
     border-radius: 6px;
     background: white;
-    overflow: hidden;
+    overflow-y: auto;
+    max-height: 400px; /* Set a maximum height to enable scrolling */
     outline: none;
   }
 

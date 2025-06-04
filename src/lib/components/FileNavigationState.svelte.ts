@@ -45,6 +45,44 @@ export class FileNavigationState {
     this._fileListRef?.focus();
   }
 
+  private scrollToCenter() {
+    if (!this._fileListRef) return;
+
+    const container = this._fileListRef;
+    
+    // Find the currently selected file row element
+    const selectedElement = container.children[this._selectedIndex] as HTMLElement;
+    if (!selectedElement) return;
+
+    // Get bounding rectangles for both container and selected element
+    const containerRect = container.getBoundingClientRect();
+    const selectedRect = selectedElement.getBoundingClientRect();
+    
+    // Calculate the middle half of the container
+    const containerMiddleStart = containerRect.top + containerRect.height * 0.25;
+    const containerMiddleEnd = containerRect.top + containerRect.height * 0.75;
+    
+    // Check if the selected element is NOT in the middle half of the container
+    const isOutsideMiddleHalf = 
+      selectedRect.top < containerMiddleStart || 
+      selectedRect.bottom > containerMiddleEnd;
+    
+    // If element is outside the middle half, scroll to center it
+    if (isOutsideMiddleHalf) {
+      const containerCenter = containerRect.height / 2;
+      const elementCenter = selectedRect.height / 2;
+      
+      // Calculate how much to scroll to center the element
+      const elementRelativeTop = selectedRect.top - containerRect.top;
+      const targetScrollTop = container.scrollTop + elementRelativeTop - containerCenter + elementCenter;
+      
+      container.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: 'smooth'
+      });
+    }
+  }
+
   navigateUp() {
     if (this.files.length === 0) return;
 
@@ -53,12 +91,14 @@ export class FileNavigationState {
       this.focusSearch();
     } else {
       this._selectedIndex = Math.max(0, this._selectedIndex - 1);
+      this.scrollToCenter();
     }
   }
 
   navigateDown() {
     if (this.files.length === 0) return;
     this._selectedIndex = Math.min(this.files.length - 1, this._selectedIndex + 1);
+    this.scrollToCenter();
   }
 
   openSelected() {
