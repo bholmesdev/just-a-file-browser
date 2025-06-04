@@ -48,6 +48,7 @@
 <main class="container">
   <div class="file-browser">
     <div class="search-container">
+      <!-- svelte-ignore a11y_autofocus -->
       <input
         class="search"
         type="text"
