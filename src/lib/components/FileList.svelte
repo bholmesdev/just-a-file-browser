@@ -39,7 +39,8 @@
     border-radius: 6px;
     background: white;
     overflow-y: auto;
-    max-height: 400px; /* Set a maximum height to enable scrolling */
+    flex: 1;
+    min-height: 0;
     outline: none;
   }
 

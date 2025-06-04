@@ -64,9 +64,22 @@
 </main>
 
 <style>
+  .container {
+    height: 100vh;
+    padding: 1rem;
+  }
+
+  .file-browser {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 1rem;
+  }
+
   .search-container {
     position: relative;
     width: 100%;
+    flex-shrink: 0; /* Don't shrink the search box */
   }
 
   .search {
