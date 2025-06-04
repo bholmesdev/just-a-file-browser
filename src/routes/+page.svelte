@@ -51,6 +51,7 @@
       <input
         class="search"
         type="text"
+        autofocus
         bind:value={searchQuery}
         bind:this={searchInput}
         placeholder="Search"
