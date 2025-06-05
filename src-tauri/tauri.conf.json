@@ -14,8 +14,7 @@
       {
         "title": "just-a-file-browser",
         "width": 800,
-        "height": 800,
-        "decorations": false
+        "height": 800
       }
     ],
     "security": {
