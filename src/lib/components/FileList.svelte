@@ -16,38 +16,81 @@
   });
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-  class="file-list"
-  bind:this={containerElement}
-  tabindex="0"
-  onkeydown={navigationState.handleFileListKeydown}
->
-  {#each navigationState.files as file, index}
-    <FileRow {file} isSelected={index === navigationState.selectedIndex} />
-  {/each}
+<div class="file-browser-container">
+  <!-- Column headers -->
+  <div class="column-headers">
+    <div class="header-name">Name</div>
+    <div class="header-modified">Modified</div>
+    <div class="header-found-in">Found in</div>
+  </div>
 
-  {#if navigationState.files.length === 0}
-    <div class="empty-state">No files found</div>
-  {/if}
+  <!-- File list -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="file-list"
+    bind:this={containerElement}
+    tabindex="0"
+    onkeydown={navigationState.handleFileListKeydown}
+  >
+    {#each navigationState.files as file, index}
+      <FileRow {file} isSelected={index === navigationState.selectedIndex} />
+    {/each}
+
+    {#if navigationState.files.length === 0}
+      <div class="empty-state">No files found</div>
+    {/if}
+  </div>
 </div>
 
 <style>
-  .file-list {
-    border: 1px solid #ddd;
-    border-radius: 6px;
+  .file-browser-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     background: white;
-    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .column-headers {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .header-name {
     flex: 1;
-    min-height: 0;
+  }
+
+  .header-modified {
+    text-align: center;
+    margin-right: 2rem;
+  }
+
+  .header-found-in {
+    text-align: right;
+  }
+
+  .file-list {
+    flex: 1;
+    overflow-y: auto;
     outline: none;
   }
 
   .empty-state {
-    padding: 2rem;
+    padding: 3rem 2rem;
     text-align: center;
-    color: #666;
+    color: #6c757d;
     font-style: italic;
   }
 </style>
