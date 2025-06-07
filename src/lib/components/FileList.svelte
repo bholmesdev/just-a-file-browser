@@ -44,11 +44,6 @@
     outline: none;
   }
 
-  .file-list:focus {
-    border-color: #2196f3;
-    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
-  }
-
   .empty-state {
     padding: 2rem;
     text-align: center;

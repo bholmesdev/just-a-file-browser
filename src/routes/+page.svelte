@@ -88,8 +88,14 @@
     border-radius: 4px;
     font-size: 1.8rem;
     border: none;
+    border-bottom: 2px dashed #ccc;
     padding-inline: 1rem;
     padding-right: 3rem; /* Make space for the icon */
+    outline: none;
+  }
+
+  .search:focus {
+    border-bottom-color: #999;
   }
 
   :global(.search-icon) {

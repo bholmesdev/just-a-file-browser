@@ -33,16 +33,20 @@
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #e5e5e5;
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    outline: none;
   }
 
   .file-row:hover {
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
   }
 
   .file-row.selected {
-    background-color: #e3f2fd;
-    border-color: #2196f3;
+    background-color: #ff9500;
+    color: white;
+  }
+
+  .file-row.selected .file-modified {
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .file-name {
