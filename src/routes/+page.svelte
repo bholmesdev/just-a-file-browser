@@ -3,14 +3,16 @@
   import FileList from '../lib/components/FileList.svelte';
   import { FileNavigationState } from '../lib/components/FileNavigationState.svelte';
 
-  let searchInput: HTMLInputElement;
+  let searchInput: HTMLInputElement | undefined = $state(undefined);
   let searchQuery = $state('');
 
   const navigationState = new FileNavigationState();
 
   // Set search input reference for navigation
   $effect(() => {
-    navigationState.setSearchInputRef(searchInput);
+    if (searchInput) {
+      navigationState.setSearchInputRef(searchInput);
+    }
   });
 
   $effect(() => {
@@ -48,11 +50,11 @@
 
 <main class="container">
   <div class="file-browser">
-    <SearchInput 
-      {navigationState} 
-      {searchQuery} 
+    <SearchInput
+      {navigationState}
+      {searchQuery}
       bind:searchInputRef={searchInput}
-      onsearchchange={handleSearchChange} 
+      onsearchchange={handleSearchChange}
     />
     <FileList {navigationState} />
   </div>
@@ -70,5 +72,4 @@
     height: 100%;
     gap: 1rem;
   }
-
 </style>
