@@ -80,6 +80,7 @@
     position: relative;
     width: 100%;
     flex-shrink: 0; /* Don't shrink the search box */
+    z-index: 1;
   }
 
   .search {
@@ -88,14 +89,37 @@
     border-radius: 4px;
     font-size: 1.8rem;
     border: none;
-    border-bottom: 2px dashed #ccc;
     padding-inline: 1rem;
     padding-right: 3rem; /* Make space for the icon */
     outline: none;
+    background: transparent;
   }
 
-  .search:focus {
-    border-bottom-color: #999;
+  .search-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: repeating-linear-gradient(
+      to right,
+      #ccc 0px,
+      #ccc 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    pointer-events: none;
+  }
+
+  .search-container:focus-within::after {
+    background: repeating-linear-gradient(
+      to right,
+      #999 0px,
+      #999 4px,
+      transparent 4px,
+      transparent 8px
+    );
   }
 
   :global(.search-icon) {
